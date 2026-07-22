@@ -52,6 +52,11 @@ Each error response has the same shape:
 { "error": { "code": "date_taken", "message": "an appointment already exists for this date" } }
 ```
 
+## Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) and Docker Compose — required to run the service and the database.
+- [Go 1.26+](https://go.dev/dl/) — optional, only for running the tests or building on the host. Not needed if you use Docker.
+
 ## Running the service
 
 To run the service, do the steps that follow:
