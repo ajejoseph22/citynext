@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-citynext}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-citynext}
+      POSTGRES_DB: ${POSTGRES_DB:-citynext}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-citynext} -d ${POSTGRES_DB:-citynext}"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+    # Publish to the host so `make test-integration` can reach the database at
+    # localhost:5432. The app service reaches it internally at db:5432.
+    ports:
+      - "${DB_HOST_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: "8080"
+      DATABASE_URL: postgres://${POSTGRES_USER:-citynext}:${POSTGRES_PASSWORD:-citynext}@db:5432/${POSTGRES_DB:-citynext}?sslmode=disable
+      NAGER_BASE_URL: https://date.nager.at
+      TIMEZONE: Europe/London
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:
